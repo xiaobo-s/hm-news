@@ -1,5 +1,6 @@
 <template>
   <div class="profile">
+    <hm-header>个人中心</hm-header>
     <!-- 头部信息 -->
     <div class="user-info" @click="$router.push('/edit-profile')">
       <!-- 头像 -->
@@ -22,15 +23,14 @@
     </div>
     <!-- 列表 -->
     <div class="list">
-      <hm-nav name="我的关注" desc="关注的用户"></hm-nav>
-      <hm-nav name="我的跟帖" desc="跟帖/回复"></hm-nav>
-      <hm-nav name="我的收藏" desc="文章/视频"></hm-nav>
-      <hm-nav name="设置" @click="$router.push('/edit-profile')"></hm-nav>
+      <hm-nav @click="$router.push('/follow')" name="我的关注" desc="关注的用户"></hm-nav>
+      <hm-nav @click="$router.push('/comments')" name="我的跟帖" desc="跟帖/回复"></hm-nav>
+      <hm-nav @click="$router.push('/favorite')" name="我的收藏" desc="文章/视频"></hm-nav>
+      <hm-nav @click="$router.push('/tab-manage')" name="栏目管理"></hm-nav>
+      <hm-nav @click="$router.push('/edit-profile')" name="设置"></hm-nav>
     </div>
     <div class="logout-btn">
-      <van-button @click="logout" size="large" round type="info">
-        退出
-      </van-button>
+      <van-button @click="logout" size="large" round type="info">退出</van-button>
     </div>
   </div>
 </template>

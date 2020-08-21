@@ -8,9 +8,23 @@ import './styles/iconfont.css'
 // 引入rem插件包
 import 'lib-flexible'
 import axios from 'axios'
-import { Button, Toast, Dialog, Field, RadioGroup, Radio, Uploader } from 'vant'
+import {
+  Button,
+  Toast,
+  Dialog,
+  Field,
+  RadioGroup,
+  Radio,
+  Uploader,
+  List,
+  Tab,
+  Tabs,
+  PullRefresh,
+  Search
+} from 'vant'
 import HmNav from 'components/hm-nav.vue'
 import HmHeader from 'components/hm-header.vue'
+import HmPosts from 'components/hm-posts.vue'
 import moment from 'moment'
 Vue.use(Button)
 Vue.use(Toast)
@@ -19,12 +33,33 @@ Vue.use(Field)
 Vue.use(RadioGroup)
 Vue.use(Radio)
 Vue.use(Uploader)
+Vue.use(List)
+Vue.use(Tab)
+Vue.use(Tabs)
+Vue.use(PullRefresh)
+Vue.use(Search)
 // 注册全局组件
 Vue.component('HmNav', HmNav)
 Vue.component('HmHeader', HmHeader)
+Vue.component('HmPosts', HmPosts)
 // 注册全局过滤器
 Vue.filter('time', function(value) {
   return moment(value).format('YYYY-MM-DD')
+})
+Vue.filter('fixUrl', function(value) {
+  return axios.defaults.baseURL + value
+})
+// 计算时间的过滤器(多少小时前...)
+Vue.filter('timeCalc', function(value) {
+  // 设置语言为中文
+  moment.locale('zh-cn')
+  return moment(value).fromNow()
+})
+// 注册自定义指令
+Vue.directive('focus', {
+  inserted(el, binding) {
+    el.focus()
+  }
 })
 Vue.config.productionTip = false
 // 将axios挂载到vue原型上

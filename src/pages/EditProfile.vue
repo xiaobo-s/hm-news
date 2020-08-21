@@ -8,36 +8,78 @@
     </div>
     <hm-nav @click="showNickname" name="昵称" :desc="profile.nickname"></hm-nav>
     <hm-nav @click="showPassword" name="密码" desc="******"></hm-nav>
-    <hm-nav @click="showGender" name="性别" :desc="profile.gender === 1 ? '男' : '女'"></hm-nav>
+    <hm-nav
+      @click="showGender"
+      name="性别"
+      :desc="profile.gender === 1 ? '男' : '女'"
+    ></hm-nav>
 
     <!-- 编辑昵称 -->
-    <van-dialog @confirm="editNickname" v-model="isShowNickname" title="编辑昵称" show-cancel-button>
+    <van-dialog
+      @confirm="editNickname"
+      v-model="isShowNickname"
+      title="编辑昵称"
+      show-cancel-button
+    >
       <van-field v-model="nickname" placeholder="请输入昵称" />
     </van-dialog>
 
     <!-- 编辑密码 -->
-    <van-dialog @confirm="editPassword" v-model="isShowPassword" title="编辑密码" show-cancel-button>
+    <van-dialog
+      @confirm="editPassword"
+      v-model="isShowPassword"
+      title="编辑密码"
+      show-cancel-button
+    >
       <van-field
         @click-right-icon="changeCanSee"
         :type="canSeePass ? 'text' : 'password'"
-        :right-icon="canSeePass ? 'closed-eye' : 'eye-o' "
+        :right-icon="canSeePass ? 'closed-eye' : 'eye-o'"
         v-model="password"
         placeholder="请输入密码"
       />
     </van-dialog>
 
     <!-- 编辑性别 -->
-    <van-dialog @confirm="editGender" v-model="isShowGender" title="编辑性别" show-cancel-button>
+    <van-dialog
+      @confirm="editGender"
+      v-model="isShowGender"
+      title="编辑性别"
+      show-cancel-button
+    >
       <van-radio-group v-model="gender" direction="horizontal">
         <van-radio :name="1">男</van-radio>
         <van-radio :name="0">女</van-radio>
       </van-radio-group>
     </van-dialog>
+
+    <!-- 裁剪的蒙层 -->
+    <div class="mask" v-show="isShowMask">
+      <vue-cropper
+        ref="cropper"
+        :img="option.img"
+        :autoCrop="option.autoCrop"
+        :autoCropWidth="option.autoCropWidth"
+        :autoCropHeight="option.autoCropHeight"
+        :fixed="option.fixed"
+        :fixedNumber="option.fixedNumber"
+      ></vue-cropper>
+      <van-button @click="crop" class="crop" type="primary"
+        >确认裁剪</van-button
+      >
+      <van-button @click="cancel" class="cancel" type="danger"
+        >取消裁剪</van-button
+      >
+    </div>
   </div>
 </template>
 
 <script>
+import { VueCropper } from 'vue-cropper'
 export default {
+  components: {
+    VueCropper
+  },
   data() {
     return {
       profile: {},
@@ -49,7 +91,17 @@ export default {
       canSeePass: true,
       passRules: /^\w{3,11}$/,
       isShowGender: false,
-      gender: 1
+      gender: 1,
+      isShowMask: false,
+      // 裁剪组件的基础配置
+      option: {
+        img: '', // 裁剪图片的地址
+        autoCrop: true, // 是否默认生成截图框
+        autoCropWidth: 150, // 默认生成截图框宽度
+        autoCropHeight: 150, // 默认生成截图框高度
+        fixed: true, // 是否开启截图框宽高固定比例
+        fixedNumber: [1, 1] // 截图框的宽高比例
+      }
     }
   },
   created() {
@@ -124,14 +176,35 @@ export default {
       // file.file 用于上传的文件对象
       // file.content 用于预览图片
       // 创建formData对象
-      const fd = new FormData()
-      fd.append('file', file.file)
-      const res = await this.$axios.post('/upload', fd)
-      console.log(res)
-      const { statusCode, data } = res.data
-      if (statusCode === 200) {
-        this.editProfile({ head_img: data.url })
-      }
+      // const fd = new FormData()
+      // fd.append('file', file.file)
+      // const res = await this.$axios.post('/upload', fd)
+      // console.log(res)
+      // const { statusCode, data } = res.data
+      // if (statusCode === 200) {
+      //   this.editProfile({ head_img: data.url })
+      // }
+      // 显示截图框
+      this.isShowMask = true
+      this.option.img = file.content
+    },
+    crop() {
+      // 调用插件方法进行裁剪
+      this.$refs.cropper.getCropBlob(async imgData => {
+        const fd = new FormData()
+        fd.append('file', imgData)
+        const res = await this.$axios.post('/upload', fd)
+        // console.log(res)
+        const { statusCode, data } = res.data
+        if (statusCode === 200) {
+          this.editProfile({ head_img: data.url })
+        }
+        this.isShowMask = false
+      })
+    },
+    // 取消裁剪
+    cancel() {
+      this.isShowMask = false
     }
   },
   computed: {
@@ -173,6 +246,24 @@ export default {
   .van-radio-group {
     padding: 20px 0;
     justify-content: space-around;
+  }
+  // 蒙层
+  .mask {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    .crop {
+      position: absolute;
+      left: 20px;
+      bottom: 20px;
+    }
+    .cancel {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+    }
   }
 }
 </style>

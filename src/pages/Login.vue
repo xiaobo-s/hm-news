@@ -80,7 +80,7 @@ export default {
         const { token, user } = res.data.data
         localStorage.setItem('token', token)
         localStorage.setItem('user_id', user.id)
-        this.$router.push('/profile')
+        this.$router.push('/home')
       } else {
         this.$toast.fail(message)
       }
